@@ -44,7 +44,58 @@ public class BoardManager : MonoBehaviour {
         CreateBoard(offset.x, offset.y);
     }
 
-	private void CreateBoard (float xOffset, float yOffset) {
+    public IEnumerator FindNullTiles()
+    {
+        for (int x = 0; x < _xSize; x++)
+        {
+            for (int y = 0; y < _ySize; y++)
+            {
+                if (_tiles[x, y].GetComponent<SpriteRenderer>().sprite == null)
+                {
+                    yield return StartCoroutine(ShiftTilesDown(x, y));
+                    break;
+                }
+            }
+        }
+        for (int x = 0; x < _xSize; x++)
+        {
+            for (int y = 0; y < _ySize; y++)
+            {
+                _tiles[x, y].GetComponent<Tile>().ClearAllMatches();
+            }
+        }
+
+    }
+
+    private IEnumerator ShiftTilesDown(int x, int yStart, float shiftDelay = .03f)
+    {
+        IsShifting = true;
+        List<SpriteRenderer> renders = new List<SpriteRenderer>();
+        int nullCount = 0;
+
+        for (int y = yStart; y < _ySize; y++)
+        {  
+            SpriteRenderer render = _tiles[x, y].GetComponent<SpriteRenderer>();
+            if (render.sprite == null)
+            { 
+                nullCount++;
+            }
+            renders.Add(render);
+        }
+
+        for (int i = 0; i < nullCount; i++)
+        { 
+            yield return new WaitForSeconds(shiftDelay);
+            for (int k = 0; k < renders.Count-1; k++)
+            { 
+                renders[k].sprite = renders[k + 1].sprite;
+                renders[k + 1].sprite = GetNewSprite(x, _ySize - 1);
+            }
+        }
+        IsShifting = false;
+    }
+
+    private void CreateBoard (float xOffset, float yOffset) {
 		_tiles = new GameObject[_xSize, _ySize];
 
         float startX = transform.position.x;
@@ -79,5 +130,27 @@ public class BoardManager : MonoBehaviour {
         
 
     }
+
+    private Sprite GetNewSprite(int x, int y)
+    {
+        List<Sprite> possibleCharacters = new List<Sprite>();
+        possibleCharacters.AddRange(_characters);
+
+        if (x > 0)
+        {
+            possibleCharacters.Remove(_tiles[x - 1, y].GetComponent<SpriteRenderer>().sprite);
+        }
+        if (x < _xSize - 1)
+        {
+            possibleCharacters.Remove(_tiles[x + 1, y].GetComponent<SpriteRenderer>().sprite);
+        }
+        if (y > 0)
+        {
+            possibleCharacters.Remove(_tiles[x, y - 1].GetComponent<SpriteRenderer>().sprite);
+        }
+
+        return possibleCharacters[Random.Range(0, possibleCharacters.Count)];
+    }
+
 
 }

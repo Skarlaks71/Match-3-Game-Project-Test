@@ -33,7 +33,9 @@ public class Tile : MonoBehaviour {
 
 	private Vector2[] _adjacentDirections = new Vector2[] { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
 
-	void Awake() {
+    private bool _matchFound = false;
+
+    void Awake() {
 		_render = GetComponent<SpriteRenderer>();
     }
 
@@ -72,8 +74,11 @@ public class Tile : MonoBehaviour {
             {
                 if (GetAllAdjacentTiles().Contains(_previousSelected.gameObject))
                 { // verify if this tile is adjacent to previous tile.
-                    SwapSprite(_previousSelected._render);  
+                    SwapSprite(_previousSelected._render);
+                    _previousSelected.ClearAllMatches();
                     _previousSelected.Deselect();
+                    ClearAllMatches();
+
                 }
                 else
                 { // if tile selected isn't adjacent deselect and select this new tile.
@@ -118,8 +123,51 @@ public class Tile : MonoBehaviour {
         return adjacentTiles;
     }
 
+    private List<GameObject> FindMatch(Vector2 castDir)
+    { 
+        List<GameObject> matchingTiles = new List<GameObject>(); 
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, castDir); 
+        while (hit.collider != null && hit.collider.GetComponent<SpriteRenderer>().sprite == _render.sprite)
+        { 
+            matchingTiles.Add(hit.collider.gameObject);
+            hit = Physics2D.Raycast(hit.collider.transform.position, castDir);
+        }
+        return matchingTiles; 
+    }
 
+    private void ClearMatch(Vector2[] paths) 
+    {
+        List<GameObject> matchingTiles = new List<GameObject>(); 
+        for (int i = 0; i < paths.Length; i++) 
+        {
+            matchingTiles.AddRange(FindMatch(paths[i]));
+        }
+        if (matchingTiles.Count >= 2) 
+        {
+            for (int i = 0; i < matchingTiles.Count; i++) 
+            {
+                matchingTiles[i].GetComponent<SpriteRenderer>().sprite = null;
+            }
+            _matchFound = true; 
+        }
+    }
 
+    public void ClearAllMatches()
+    {
+        if (_render.sprite == null)
+            return;
+
+        ClearMatch(new Vector2[2] { Vector2.left, Vector2.right });
+        ClearMatch(new Vector2[2] { Vector2.up, Vector2.down });
+        if (_matchFound)
+        {
+            _render.sprite = null;
+            _matchFound = false;
+            StopCoroutine(BoardManager.instance.FindNullTiles());
+            StartCoroutine(BoardManager.instance.FindNullTiles());
+            SFXManager.instance.PlaySFX(Clip.Clear);
+        }
+    }
 
 
 }
