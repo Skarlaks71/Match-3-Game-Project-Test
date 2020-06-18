@@ -70,10 +70,18 @@ public class Tile : MonoBehaviour {
             }
             else
             {
-                SwapSprite(_previousSelected._render);
-
-                _previousSelected.Deselect(); 
+                if (GetAllAdjacentTiles().Contains(_previousSelected.gameObject))
+                { // verify if this tile is adjacent to previous tile.
+                    SwapSprite(_previousSelected._render);  
+                    _previousSelected.Deselect();
+                }
+                else
+                { // if tile selected isn't adjacent deselect and select this new tile.
+                    _previousSelected.GetComponent<Tile>().Deselect();
+                    Select();
+                }
             }
+
         }
     }
 
@@ -89,6 +97,28 @@ public class Tile : MonoBehaviour {
         _render.sprite = tempSprite; 
         SFXManager.instance.PlaySFX(Clip.Swap); 
     }
+
+    private GameObject GetAdjacent(Vector2 castDir)
+    {
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, castDir);
+        if (hit.collider != null)
+        {
+            return hit.collider.gameObject;
+        }
+        return null;
+    }
+
+    private List<GameObject> GetAllAdjacentTiles()
+    {
+        List<GameObject> adjacentTiles = new List<GameObject>();
+        for (int i = 0; i < _adjacentDirections.Length; i++)
+        {
+            adjacentTiles.Add(GetAdjacent(_adjacentDirections[i]));
+        }
+        return adjacentTiles;
+    }
+
+
 
 
 
