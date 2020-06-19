@@ -28,32 +28,84 @@ public class GUIManager : MonoBehaviour {
 	public static GUIManager instance;
 
 	public GameObject gameOverPanel;
-	public Text yourScoreTxt;
-	public Text highScoreTxt;
+	[SerializeField]
+	private Text _yourScoreTxt;
+	[SerializeField]
+	private Text _highScoreTxt;
 
-	public Text scoreTxt;
-	public Text moveCounterTxt;
+	[SerializeField]
+	private Text _scoreTxt;
+	[SerializeField]
+	private Text _moveCounterTxt;
 
-	private int score;
+    [SerializeField]
+    private int _timeValue;
 
-	void Awake() {
+	private int _score;
+	private int _moveCounter;
+
+    #region Propert Score and moveCounter
+    public int Score
+    {
+        get
+        {
+            return _score;
+        }
+
+        set
+        {
+            _score = value;
+            _scoreTxt.text = _score.ToString();
+        }
+    }
+
+    public int MoveCounter
+    {
+        get
+        {
+            return _moveCounter;
+        }
+
+        set
+        {
+            _moveCounter = value;
+            if (_moveCounter <= 0)
+            {
+                _moveCounter = 0;
+                StartCoroutine(WaitForShifting());
+            }
+            _moveCounterTxt.text = _moveCounter.ToString();
+        }
+    }
+    #endregion
+
+    void Awake() {
+		_moveCounter = _timeValue;
+		_moveCounterTxt.text = _moveCounter.ToString();
 		instance = GetComponent<GUIManager>();
 	}
 
-	// Show the game over panel
-	public void GameOver() {
+    private IEnumerator WaitForShifting()
+    {
+        yield return new WaitUntil(() => !BoardManager.instance.IsShifting);
+        yield return new WaitForSeconds(.25f);
+        GameOver();
+    }
+
+    // Show the game over panel
+    public void GameOver() {
 		GameManager.instance.gameOver = true;
 
 		gameOverPanel.SetActive(true);
 
-		if (score > PlayerPrefs.GetInt("HighScore")) {
-			PlayerPrefs.SetInt("HighScore", score);
-			highScoreTxt.text = "New Best: " + PlayerPrefs.GetInt("HighScore").ToString();
+		if (_score > PlayerPrefs.GetInt("HighScore")) {
+			PlayerPrefs.SetInt("HighScore", _score);
+			_highScoreTxt.text = "New Best: " + PlayerPrefs.GetInt("HighScore").ToString();
 		} else {
-			highScoreTxt.text = "Best: " + PlayerPrefs.GetInt("HighScore").ToString();
+			_highScoreTxt.text = "Best: " + PlayerPrefs.GetInt("HighScore").ToString();
 		}
 
-		yourScoreTxt.text = score.ToString();
+		_yourScoreTxt.text = _score.ToString();
 	}
 
 }

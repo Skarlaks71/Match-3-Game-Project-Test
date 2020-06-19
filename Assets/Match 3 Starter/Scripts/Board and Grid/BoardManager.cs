@@ -84,7 +84,8 @@ public class BoardManager : MonoBehaviour {
         }
 
         for (int i = 0; i < nullCount; i++)
-        { 
+        {
+            GUIManager.instance.Score += 50;
             yield return new WaitForSeconds(shiftDelay);
             for (int k = 0; k < renders.Count-1; k++)
             { 
