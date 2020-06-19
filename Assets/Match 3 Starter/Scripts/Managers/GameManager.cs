@@ -38,6 +38,8 @@ public class GameManager : MonoBehaviour {
 	private string currentScene;
 	private AsyncOperation async;
 
+	public int newMeta = 0;
+
 	void Awake() {
 		// Only 1 Game Manager can exist at a time
 		if (instance == null) {

@@ -28,7 +28,9 @@ public class GUIManager : MonoBehaviour {
 	public static GUIManager instance;
 
 	public GameObject gameOverPanel;
-	[SerializeField]
+    public GameObject playButton;
+    public GameObject nextButton;
+    [SerializeField]
 	private Text _yourScoreTxt;
 	[SerializeField]
 	private Text _highScoreTxt;
@@ -37,14 +39,19 @@ public class GUIManager : MonoBehaviour {
 	private Text _scoreTxt;
 	[SerializeField]
 	private Text _moveCounterTxt;
+    [SerializeField]
+    private Text _metaScoreTxt;
 
     [SerializeField]
     private int _timeValue;
+    [SerializeField]
+    private int _metaValue;
 
 	private int _score;
 	private int _moveCounter;
+    private int _metaScore;
 
-    #region Propert Score and moveCounter
+    #region Propert Score, moveCounter and metaScore
     public int Score
     {
         get
@@ -77,13 +84,39 @@ public class GUIManager : MonoBehaviour {
             _moveCounterTxt.text = _moveCounter.ToString();
         }
     }
+    public int MetaScore
+    {
+        get
+        {
+            return _metaScore;
+        }
+
+        set
+        {
+            _metaScore = value;
+        }
+    }
     #endregion
 
     void Awake() {
-		_moveCounter = _timeValue;
-		_moveCounterTxt.text = _moveCounter.ToString();
+        if(_metaValue > GameManager.instance.newMeta)
+        {
+            _metaScore = _metaValue;
+            Debug.Log("oi");
+        }
+        else
+        {
+            _metaScore = GameManager.instance.newMeta;
+        }
+        _metaScoreTxt.text = _metaScore.ToString();
+        _moveCounter = _timeValue;
+        _moveCounterTxt.text = _moveCounter.ToString();
 		instance = GetComponent<GUIManager>();
 	}
+    private void Start()
+    {
+        Debug.Log(MetaScore);
+    }
 
     private IEnumerator WaitForShifting()
     {
@@ -97,6 +130,18 @@ public class GUIManager : MonoBehaviour {
 		GameManager.instance.gameOver = true;
 
 		gameOverPanel.SetActive(true);
+
+        // verify if the meta score has be complete and add new meta
+        if(_score > _metaScore)
+        {
+            playButton.SetActive(false);
+            GameManager.instance.newMeta = MetaScore + 1000;
+        }
+        else
+        {
+            nextButton.SetActive(false);
+            
+        }
 
 		if (_score > PlayerPrefs.GetInt("HighScore")) {
 			PlayerPrefs.SetInt("HighScore", _score);
