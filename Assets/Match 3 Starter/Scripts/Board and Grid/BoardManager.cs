@@ -78,6 +78,7 @@ public class BoardManager : MonoBehaviour {
 
     }
 
+    // fix a bug on the top line which had no tile after matching
     private IEnumerator AddNewSprite(int x,int y, float shiftDelay = .03f)
     {
         SpriteRenderer render = _tiles[x, y].GetComponent<SpriteRenderer>();
