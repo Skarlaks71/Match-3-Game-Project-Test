@@ -91,7 +91,7 @@ public class Tile : MonoBehaviour {
     }
 
     public void SwapSprite(SpriteRenderer render2)
-    {
+    {// change the sprites
         if (_render.sprite == render2.sprite)
         { 
             return;
@@ -126,7 +126,7 @@ public class Tile : MonoBehaviour {
     }
 
     private List<GameObject> FindMatch(Vector2 castDir)
-    { 
+    { //detect if has match through raycast
         List<GameObject> matchingTiles = new List<GameObject>(); 
         RaycastHit2D hit = Physics2D.Raycast(transform.position, castDir); 
         while (hit.collider != null && hit.collider.GetComponent<SpriteRenderer>().sprite == _render.sprite)

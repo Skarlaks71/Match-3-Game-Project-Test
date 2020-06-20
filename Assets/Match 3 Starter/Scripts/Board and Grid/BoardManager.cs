@@ -50,10 +50,21 @@ public class BoardManager : MonoBehaviour {
         {
             for (int y = 0; y < _ySize; y++)
             {
+                
                 if (_tiles[x, y].GetComponent<SpriteRenderer>().sprite == null)
                 {
-                    yield return StartCoroutine(ShiftTilesDown(x, y));
-                    break;
+                    if (y == _ySize - 1)
+                    {
+                        Debug.Log("Top avoid");
+                        yield return StartCoroutine(AddNewSprite(x, y));
+                        break;
+                    }
+                    else
+                    {
+                        yield return StartCoroutine(ShiftTilesDown(x, y));
+                        break;
+                    }
+                    
                 }
             }
         }
@@ -65,6 +76,13 @@ public class BoardManager : MonoBehaviour {
             }
         }
 
+    }
+
+    private IEnumerator AddNewSprite(int x,int y, float shiftDelay = .03f)
+    {
+        SpriteRenderer render = _tiles[x, y].GetComponent<SpriteRenderer>();
+        yield return new WaitForSeconds(shiftDelay);
+        render.sprite = GetNewSprite(x, y);
     }
 
     private IEnumerator ShiftTilesDown(int x, int yStart, float shiftDelay = .03f)
@@ -90,7 +108,7 @@ public class BoardManager : MonoBehaviour {
             for (int k = 0; k < renders.Count-1; k++)
             { 
                 renders[k].sprite = renders[k + 1].sprite;
-                renders[k + 1].sprite = GetNewSprite(x, _ySize - 1);
+                renders[k + 1].sprite = GetNewSprite(x, _ySize-1);
             }
         }
         IsShifting = false;
@@ -133,7 +151,7 @@ public class BoardManager : MonoBehaviour {
     }
 
     private Sprite GetNewSprite(int x, int y)
-    {
+    { //generate new sprites random for position null
         List<Sprite> possibleCharacters = new List<Sprite>();
         possibleCharacters.AddRange(_characters);
 
