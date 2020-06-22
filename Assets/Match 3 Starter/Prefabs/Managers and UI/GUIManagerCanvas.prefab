@@ -579,7 +579,7 @@ MonoBehaviour:
   _scoreTxt: {fileID: 11485300}
   _moveCounterTxt: {fileID: 114000012414310656}
   _metaScoreTxt: {fileID: 9065342964559516101}
-  _timeValue: 10
+  _timeValue: 120
   _metaValue: 1000
 --- !u!1 &1000010228775672
 GameObject:
